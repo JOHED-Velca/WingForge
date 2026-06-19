@@ -8,6 +8,23 @@ pub struct FlyingWingDesign {
 }
 
 impl FlyingWingDesign { // Rust, attach functions directly to FlyingWingDesign
+    
+    pub fn new(
+        wingspan_mm: f64,
+        root_chord_mm: f64,
+        tip_chord_mm: f64,
+        sweep_deg: f64,
+        elevon_depth_mm: f64,
+    ) -> Self {
+        Self {
+            wingspan_mm,
+            root_chord_mm,
+            tip_chord_mm,
+            sweep_deg,
+            elevon_depth_mm,
+        }
+    }
+
     pub fn from_wingspan(wingspan_mm: f64) -> Self { //build a basic design from the wingspan
         let root_chord_mm = wingspan_mm * 0.275; // estimate root chord as 27.5% of wingspan
         let tip_chord_mm = root_chord_mm * 0.5; // estimate tip chord as half of root chord
