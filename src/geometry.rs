@@ -2,12 +2,17 @@ pub struct FlyingWingDesign {
     pub wingspan_mm: f64, //declare a field inside the struct
     pub root_chord_mm: f64, // 'pub' means files/modules are allowed to access this field
     pub tip_chord_mm: f64, // 'f64' means the value will be a 64 bit floating point number
+    pub sweep_deg: f64, // declare a public field inside the FlyingWingDesign struct, make it public
+                        // and make it expect a 64 bit floating point number.
+    pub elevon_depth_mm: f64,
 }
 
 impl FlyingWingDesign { // Rust, attach functions directly to FlyingWingDesign
     pub fn from_wingspan(wingspan_mm: f64) -> Self { //build a basic design from the wingspan
         let root_chord_mm = wingspan_mm * 0.275; // estimate root chord as 27.5% of wingspan
         let tip_chord_mm = root_chord_mm * 0.5; // estimate tip chord as half of root chord
+        let sweep_deg = 25.0;
+        let elevon_depth_mm = root_chord_mm * 0.14;
 
         Self { //Create a new instance of the FlyingWingDesign struct. "Self" is a shortcut for the
                //struct's name. In this case Rust mentally replaces "Self" with "FlyingWingDesign"
@@ -16,7 +21,13 @@ impl FlyingWingDesign { // Rust, attach functions directly to FlyingWingDesign
                          // both names match. Otherwise it would be: wingspan_mm: wingspan_mm
             root_chord_mm, // root_chord_mm: root_chord_mm
             tip_chord_mm, // tip_chord_mm: tip_chord_mm
+            sweep_deg,
+            elevon_depth_mm,
         }
+    }
+
+    pub fn half_span_mm(&self) -> f64 {
+        self.wingspan_mm / 2.0
     }
 
     pub fn average_chord_mm(&self) ->f64 { // Create a function named average_chord_mm. "pub" allows code outside this module
@@ -44,6 +55,10 @@ impl FlyingWingDesign { // Rust, attach functions directly to FlyingWingDesign
                                                    // inside this same FlyingWingDesign obj.
     }
 
+    pub fn wing_area_dm2(&self) -> f64 {
+        self.wing_area_mm2() / 10_000.0
+    }
+
     pub fn aspect_ratio(&self) -> f64 {
         self.wingspan_mm.powi(2) / self.wing_area_mm2() // get the wingspan_mm value
                                                       // ".powi(2)": call the built in f64 function
@@ -54,7 +69,66 @@ impl FlyingWingDesign { // Rust, attach functions directly to FlyingWingDesign
                                                       // self.wingspan_mm * self.wingspan_mm
     }
 
-    pub fn taper_ratio(&self) -> f64 {
+    pub fn taper_ratio(&self) -> f64 { // Calculate how much smaller the tip is than the root
         self.tip_chord_mm / self.root_chord_mm
+    }
+
+    pub fn sweep_offset_mm(&self) -> f64 { // How far back the tip leading edge moves because of
+                                           // of the sweep
+        let sweep_rad = self.sweep_deg.to_radians(); // convert degrees to radians because ".tan()"
+                                                     // expects radians
+        self.half_span_mm() * sweep_rad.tan()
+    }
+
+    pub fn trailing_edge_length_mm(&self) -> f64 {
+        let chord_difference = self.root_chord_mm - self.tip_chord_mm; // calculate how much the
+                                                                       // chord shrinks from root to
+                                                                       // tip
+        let rear_offset = self.sweep_offset_mm() + chord_difference; //calc total rearward movement of the trailing edge
+        (self.half_span_mm().powi(2) + rear_offset.powi(2)).sqrt() // use Pythagorean theorem to
+                                                                   // calculate diagonal length
+    }
+
+    pub fn mean_aerodynamic_chord_mm(&self) -> f64 { // calculate MAC, a better chord reference than
+                                                     // average chord
+        let taper = self.taper_ratio(); // store taper ratio so the formula is easier to read
+        (2.0 / 3.0) * self.root_chord_mm * ((1.0 + taper + taper.powi(2)) / (1.0 + taper)) // STD
+                                                                                           // tapered
+                                                                                           // wing
+                                                                                           // MAC
+                                                                                           // formula
+    }
+
+    pub fn mac_y_position_mm(&self) -> f64 { // Calculate how far back from centerline the MAC is
+        let taper = self.taper_ratio(); // Store taper ratio
+        (self.wingspan_mm / 6.0) * ((1.0 + 2.0 * taper) / (1.0 + taper)) // Calculate spanwise MAC
+                                                                         // position from centerline
+    }
+
+    pub fn mac_le_x_position_mm(&self) -> f64 { // calculate how far back the leading edge of MAC is
+        let sweep_rad = self.sweep_deg.to_radians(); // convert sweep angle from degres to radians
+        self.mac_y_position_mm() * sweep_rad.tan() // Leading edge offset at MAC position
+    }
+
+    pub fn recommended_cg_min_mm(&self) -> f64 { // Calculate forward CG estimate from root leading
+                                                 // edge
+        self.mac_le_x_position_mm() + self.mean_aerodynamic_chord_mm() * 0.15 // beginner forward CG
+                                                                              // around 15% of MAC
+    }
+
+    pub fn recommended_cg_max_mm(&self) -> f64 { // Calculate rear CG estimate from root leading
+                                                 // edge
+        self.mac_le_x_position_mm() + self.mean_aerodynamic_chord_mm() * 0.20 // beginner rear CG
+                                                                              // around 20 percent
+                                                                              // MAC
+    }
+
+    pub fn elevon_area_mm2(&self) -> f64 { // estimate total elevon area for both sides
+        self.trailing_edge_length_mm() * self.elevon_depth_mm * 2.0 // one elevon per side, so
+                                                                    // multiply by 2
+    }
+
+    pub fn elevon_area_percent(&self) -> f64 { // calculate elevon area compared to full wing area
+        (self.elevon_area_mm2() / self.wing_area_mm2()) * 100.0 // convert area ratio to percentage
     }
 }

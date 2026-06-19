@@ -24,12 +24,32 @@ fn main() { //Rust, this is where the program starts running
 
     println!("\n--- Geometry ---"); // Print the title
     println!("Wingspan: {:.1} mm", design.wingspan_mm); // Show the winspan with one decimal
+    println!("Half span: {:.1} mm", design.half_span_mm()); // Show distance from center to one tip
+    println!("");
     println!("Root chord: {:.1} mm", design.root_chord_mm); // show the root chord
     println!("Tip chord: {:.1} mm", design.tip_chord_mm); // show the tip chord
+    println!("");
+    println!("Sweep angle: {:.1}° mm", design.sweep_deg); // Show the winspan with one decimal
+    println!("Sweep offset: {:.1} mm", design.sweep_offset_mm()); // Show the winspan with one decimal
+    println!("");
+    println!("Trailing edge length: {:.1} mm", design.trailing_edge_length_mm()); // Show the winspan with one decimal
+    println!("");
     println!("Average chord: {:.1} mm", design.average_chord_mm()); // calc & show avrg chord
-    println!("Wing area: {:.1} mm2", design.wing_area_mm2()); // calc & show wing area
+    println!("");
+    println!("MAC: {:.1} mm", design.mean_aerodynamic_chord_mm()); // calc & show mean aerodynamic chord
+    println!("MAC leading edge position: {:.1} mm", design.mac_le_x_position_mm()); // calc & show where MAC starts
+    println!("");                                                                // from leading edge
+    println!("Wing area: {:.1} mm²", design.wing_area_mm2()); // calc & show wing area
+    println!("Wing area: {:.2} dm²", design.wing_area_dm2()); // calc & show wing area
+    println!("");
     println!("Aspect ratio: {:.2} mm", design.aspect_ratio()); // calc & show aspect ratio
     println!("Taper ratio: {:.2} mm", design.taper_ratio()); // calc & show taper ratio
+    println!("");
+    println!("Recommended CG range: {:.1} mm to {:.1} mm from root leading edge", design.recommended_cg_min_mm(), design.recommended_cg_max_mm());
+    println!("");
+    println!("Elevon depth: {:.1} mm", design.elevon_depth_mm);
+    println!("Elevon area: {:.1} mm²", design.elevon_area_mm2());
+    println!("Elevon area percent: {:.1}%", design.elevon_area_percent());
     
     println!("\n--- Warnings ---"); // Print a warning section
     warnings::print_warnings(&design); // ask the awrnings module to inspect the design
