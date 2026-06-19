@@ -1,6 +1,7 @@
 mod geometry; // Rust, look for file called geometry.rs and make its functions available here
 mod warnings; // Rust, look for warnings.rs so this file can ask it to check the design
 mod tradeoffs; // Rust, look for tradeoffs.rs so this file can print explanations
+mod analysis;
 
 use std::io; //Inside the standard library, use the io module so we can read user input
 
@@ -50,7 +51,10 @@ fn main() { //Rust, this is where the program starts running
     println!("Elevon depth: {:.1} mm", design.elevon_depth_mm);
     println!("Elevon area: {:.1} mm²", design.elevon_area_mm2());
     println!("Elevon area percent: {:.1}%", design.elevon_area_percent());
-    
+    println!("");
+    println!("\n--- Design Analysis ---");
+    analysis::print_design_analysis(&design);
+    println!("");
     println!("\n--- Warnings ---"); // Print a warning section
     warnings::print_warnings(&design); // ask the awrnings module to inspect the design
 
