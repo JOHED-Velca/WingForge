@@ -98,12 +98,15 @@ impl FlyingWingDesign { // Rust, attach functions directly to FlyingWingDesign
     }
 
     pub fn trailing_edge_length_mm(&self) -> f64 {
-        let chord_difference = self.root_chord_mm - self.tip_chord_mm; // calculate how much the
-                                                                       // chord shrinks from root to
-                                                                       // tip
-        let rear_offset = self.sweep_offset_mm() + chord_difference; //calc total rearward movement of the trailing edge
-        (self.half_span_mm().powi(2) + rear_offset.powi(2)).sqrt() // use Pythagorean theorem to
-                                                                   // calculate diagonal length
+        let root_trailing_edge_x_mm = self.root_chord_mm;
+
+        let tip_trailing_edge_x_mm =
+            self.sweep_offset_mm() + self.tip_chord_mm;
+
+        let trailing_edge_offset_mm =
+            tip_trailing_edge_x_mm = root_trailing_edge_x_mm;
+
+        (self.half_span_mm().powi(2) + trailing_edge_offset_mm.powi(2)).sqrt()
     }
 
     pub fn mean_aerodynamic_chord_mm(&self) -> f64 { // calculate MAC, a better chord reference than
