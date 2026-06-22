@@ -5,6 +5,7 @@ mod analysis; // This loads the analysis.rs file as a module.
 mod input; // This loads the input.rs file as a module.
 mod validation;
 mod performance;
+mod recommendation;
 
 fn main() { // This declares the main function where the program starts.
     println!("Wing Forge V1 - Flying Wing Assistant"); // This prints the program title.
@@ -33,18 +34,24 @@ fn main() { // This declares the main function where the program starts.
     };
 
     let weight_g = input::read_number("Enter estimated aircraft weight in grams:");
-    
+    let thrust_g = input::read_number("Enter estimated motor thrust in grams:");
     print_geometry(&design); // This calls the geometry printing helper function.
   
     validation::print_validation(&design); //This calls the validation module and apsses a read_only
 
-    performance::print_performance(&design, weight_g);    
+    performance::print_performance(&design, weight_g, thrust_g);
 
     println!("\n--- Trade-offs ---"); // This prints the trade-offs section title.
     tradeoffs::print_tradeoffs(&design); // This prints basic trade-off explanations.
 
     println!("\n--- Design Analysis ---"); // This prints the design analysis section title.
     analysis::print_design_analysis(&design); // This prints deeper assistant-style analysis.
+
+    recommendation::print_recommendation(
+        &design,
+        weight_g,
+        thrust_g,
+    );
 }
 
 fn print_geometry(design: &geometry::FlyingWingDesign) { // This declares a private helper function that receives a read-only reference to FlyingWingDesign.
