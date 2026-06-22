@@ -1,66 +1,50 @@
-mod geometry; // Rust, look for file called geometry.rs and make its functions available here
-mod warnings; // Rust, look for warnings.rs so this file can ask it to check the design
-mod tradeoffs; // Rust, look for tradeoffs.rs so this file can print explanations
-mod analysis;
-mod input;
+mod geometry; // This loads the geometry.rs file as a module.
+//mod warnings; // This loads the warnings.rs file as a module.
+mod tradeoffs; // This loads the tradeoffs.rs file as a module.
+mod analysis; // This loads the analysis.rs file as a module.
+mod input; // This loads the input.rs file as a module.
+mod validation;
+mod performance;
 
-use std::io; //Inside the standard library, use the io module so we can read user input
+fn main() { // This declares the main function where the program starts.
+    println!("Wing Forge V1 - Flying Wing Assistant"); // This prints the program title.
 
-fn main() { //Rust, this is where the program starts running
-    println!("Wing Forge V1 - Design Flying Wing Assistant"); //Print the title
-    println!("Enter wingspan in millimeters:"); // Program ask the user for first design input
+    let choice = input::read_choice(
+        "\nChoose design mode:\n1) Auto design from wingspan\n2) Manual geometry input"
+    ); // This calls read_choice from input.rs and stores the user's menu choice.
+
+    let design = if choice == 1 { // This creates a design using automatic mode if the user enters 1.
+        let wingspan_mm = input::read_number("Enter wingspan in millimeters:"); // This asks for wingspan and stores it as an f64.
+        geometry::FlyingWingDesign::from_wingspan(wingspan_mm) // This creates a design using only the wingspan.
+    } else { // This runs when the user chooses anything other than 1.
+        let wingspan_mm = input::read_number("Enter wingspan in millimeters:"); // This asks for full wingspan.
+        let root_chord_mm = input::read_number("Enter root chord in millimeters:"); // This asks for root chord.
+        let tip_chord_mm = input::read_number("Enter tip chord in millimeters:"); // This asks for tip chord.
+        let sweep_deg = input::read_number("Enter leading edge sweep angle in degrees:"); // This asks for sweep angle.
+        let elevon_depth_mm = input::read_number("Enter elevon depth in millimeters:"); // This asks for elevon depth.
+
+        geometry::FlyingWingDesign::new(
+            wingspan_mm,
+            root_chord_mm,
+            tip_chord_mm,
+            sweep_deg,
+            elevon_depth_mm,
+        ) // This creates a design from the manual values.
+    };
+
+    let weight_g = input::read_number("Enter estimated aircraft weight in grams:");
     
-    let mut input = String::new(); //Create a mutable empty string
+    print_geometry(&design); // This calls the geometry printing helper function.
+  
+    validation::print_validation(&design); //This calls the validation module and apsses a read_only
 
-    io::stdin() //Rust, access the keyboard input stream
-        .read_line(&mut input) //give read_line a mutable reference so it can write the user's text
-        .expect("Failed to read input"); //carsh this message if you fail reading the input
+    performance::print_performance(&design, weight_g);    
 
-    let wingspan_mm: f64 = input //Rust, take the text store in the variable input
-        .trim() // remove extra spaces and the Enter key from the text
-        .parse() // try to convert the text to a number
-        .expect("Please enter a valid number"); // crash with this msg if text is not a number
+    println!("\n--- Trade-offs ---"); // This prints the trade-offs section title.
+    tradeoffs::print_tradeoffs(&design); // This prints basic trade-off explanations.
 
-    let design = geometry::FlyingWingDesign::from_wingspan(wingspan_mm); //create a flying wing
-                                                                         //design usng the winspan
-
-    println!("\n--- Geometry ---"); // Print the title
-    println!("Wingspan: {:.1} mm", design.wingspan_mm); // Show the winspan with one decimal
-    println!("Half span: {:.1} mm", design.half_span_mm()); // Show distance from center to one tip
-    println!("");
-    println!("Root chord: {:.1} mm", design.root_chord_mm); // show the root chord
-    println!("Tip chord: {:.1} mm", design.tip_chord_mm); // show the tip chord
-    println!("");
-    println!("Sweep angle: {:.1}° mm", design.sweep_deg); // Show the winspan with one decimal
-    println!("Sweep offset: {:.1} mm", design.sweep_offset_mm()); // Show the winspan with one decimal
-    println!("");
-    println!("Trailing edge length: {:.1} mm", design.trailing_edge_length_mm()); // Show the winspan with one decimal
-    println!("");
-    println!("Average chord: {:.1} mm", design.average_chord_mm()); // calc & show avrg chord
-    println!("");
-    println!("MAC: {:.1} mm", design.mean_aerodynamic_chord_mm()); // calc & show mean aerodynamic chord
-    println!("MAC leading edge position: {:.1} mm", design.mac_le_x_position_mm()); // calc & show where MAC starts
-    println!("");                                                                // from leading edge
-    println!("Wing area: {:.1} mm²", design.wing_area_mm2()); // calc & show wing area
-    println!("Wing area: {:.2} dm²", design.wing_area_dm2()); // calc & show wing area
-    println!("");
-    println!("Aspect ratio: {:.2} mm", design.aspect_ratio()); // calc & show aspect ratio
-    println!("Taper ratio: {:.2} mm", design.taper_ratio()); // calc & show taper ratio
-    println!("");
-    println!("Recommended CG range: {:.1} mm to {:.1} mm from root leading edge", design.recommended_cg_min_mm(), design.recommended_cg_max_mm());
-    println!("");
-    println!("Elevon depth: {:.1} mm", design.elevon_depth_mm);
-    println!("Elevon area: {:.1} mm²", design.elevon_area_mm2());
-    println!("Elevon area percent: {:.1}%", design.elevon_area_percent());
-    println!("");
-    println!("\n--- Design Analysis ---");
-    analysis::print_design_analysis(&design);
-    println!("");
-    println!("\n--- Warnings ---"); // Print a warning section
-    warnings::print_warnings(&design); // ask the awrnings module to inspect the design
-
-    println!("\n---Trade-offs---"); // Program, print a trade-off section
-    tradeoffs::print_tradeoffs(&design); //Ask the tradeoffs module to explain consequences
+    println!("\n--- Design Analysis ---"); // This prints the design analysis section title.
+    analysis::print_design_analysis(&design); // This prints deeper assistant-style analysis.
 }
 
 fn print_geometry(design: &geometry::FlyingWingDesign) { // This declares a private helper function that receives a read-only reference to FlyingWingDesign.
@@ -84,4 +68,3 @@ fn print_geometry(design: &geometry::FlyingWingDesign) { // This declares a priv
     println!("Elevon area: {:.1} mm²", design.elevon_area_mm2()); // This prints total elevon area.
     println!("Elevon area percent: {:.1}%", design.elevon_area_percent()); // This prints elevon area as percentage of wing area.
 }
-

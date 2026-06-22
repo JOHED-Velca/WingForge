@@ -24,7 +24,7 @@ fn analyze_aspect_ratio(design: &FlyingWingDesign) {
         println!("");
     } else {
         println!("Aspect ratio {:.2}: glider like wing.", aspect_ratio);
-        println!("Trade-off: better glide efficiency, but more bending stree and harder construction.");
+        println!("Trade-off: better glide efficiency, but more bending stress and harder construction.");
         println!("");
     }
 }
@@ -59,7 +59,7 @@ fn analyze_elevons(design: &FlyingWingDesign){
         println!("Trade-off: should give good control authority without being extreme.");
         println!("");
     } else {
-        println!("Taper ratio {:.1}%: large elevons.", elevon_percent);
+        println!("Elevon area {:.1}%: large elevons.", elevon_percent);
         println!("Trade-off: strong control response, but bigger drag and more sensitivity.");
         println!("");
     }
