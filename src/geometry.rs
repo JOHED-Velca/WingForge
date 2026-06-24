@@ -104,7 +104,7 @@ impl FlyingWingDesign { // Rust, attach functions directly to FlyingWingDesign
             self.sweep_offset_mm() + self.tip_chord_mm;
 
         let trailing_edge_offset_mm =
-            tip_trailing_edge_x_mm = root_trailing_edge_x_mm;
+            tip_trailing_edge_x_mm - root_trailing_edge_x_mm;
 
         (self.half_span_mm().powi(2) + trailing_edge_offset_mm.powi(2)).sqrt()
     }
@@ -119,7 +119,8 @@ impl FlyingWingDesign { // Rust, attach functions directly to FlyingWingDesign
                                                                                            // formula
     }
 
-    pub fn mac_y_position_mm(&self) -> f64 { // Calculate how far back from centerline the MAC is
+    pub fn mac_y_position_mm(&self) -> f64 { // Calculate how outboard the MAC is from the wing
+                                             // centerline
         let taper = self.taper_ratio(); // Store taper ratio
         (self.wingspan_mm / 6.0) * ((1.0 + 2.0 * taper) / (1.0 + taper)) // Calculate spanwise MAC
                                                                          // position from centerline
@@ -152,3 +153,71 @@ impl FlyingWingDesign { // Rust, attach functions directly to FlyingWingDesign
         (self.elevon_area_mm2() / self.wing_area_mm2()) * 100.0 // convert area ratio to percentage
     }
 }
+
+#[cfg(test)] // Only compile when running cargo test
+mod tests { // Create a private module that holds the tests for geometry.rs
+    use super::*; // Import everything from the parent geometry.rs file into this
+
+    fn assert_near(actual: f64, expected: f64, tolerance: f64) {
+        let difference = (actual - expected).abs();
+
+        assert!(
+            difference <= tolerance,
+            "actual value {} was not within {} of expected value {}",
+            actual,
+            tolerance,
+            expected,
+        );
+    }
+
+    fn reference_design() -> FlyingWingDesign {
+        FlyingWingDesign::new(
+            800.0,
+            150.0,
+            75.0,
+            27.0,
+            25.0,
+        )
+    }
+
+    #[test]
+    fn calculates_basic_planform_geometry() {
+        let design = reference_design();
+
+        assert_near(design.half_span_mm(), 400.0, 0.001);
+        assert_near(design.average_chord_mm(), 112.5, 0.001);
+        assert_near(design.wing_area_mm2(), 90_000.0, 0.001);
+        assert_near(design.wing_area_dm2(), 9.0, 0.001);
+        assert_near(design.aspect_ratio(), 7.111, 0.001);
+        assert_near(design.taper_ratio(), 0.5, 0.001);
+    }
+
+    #[test]
+    fn calculates_sweep_and_trailing_edge_geometry() {
+        let design = reference_design();
+
+        assert_near(design.sweep_offset_mm(), 203.810, 0.001);
+        assert_near(design.trailing_edge_length_mm(), 420.229, 0.001);
+    }
+    
+    #[test]
+    fn calculates_mac_and_cg_estimates() {
+        let design = reference_design();
+
+        assert_near(design.mean_aerodynamic_chord_mm(), 116.667, 0.001);
+        assert_near(design.mac_y_position_mm(), 177.778, 0.001);
+        assert_near(design.mac_le_x_position_mm(), 90.582, 0.001);
+        assert_near(design.recommended_cg_min_mm(), 108.082, 0.001);
+        assert_near(design.recommended_cg_max_mm(), 113.916, 0.001);
+    }
+
+    #[test]
+    fn calculates_elevon_area_from_corrected_trailing_edge() { // Test elevon area calculations
+        let design = reference_design(); // Create the reference design for this test
+
+        assert_near(design.elevon_area_mm2(), 21_011.429, 0.001); // Check total elevon area for
+                                                                  // both sides
+        assert_near(design.elevon_area_percent(), 23.346, 0.001); //Check elevon area as percent of
+                                                                  //wing area
+    } // End elevon area test
+} // End tests module

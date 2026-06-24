@@ -64,13 +64,13 @@ fn print_geometry(design: &geometry::FlyingWingDesign) { // This declares a priv
     println!("Sweep offset: {:.1} mm", design.sweep_offset_mm()); // This prints the calculated sweep offset.
     println!("Trailing edge length: {:.1} mm", design.trailing_edge_length_mm()); // This prints the trailing edge length.
     println!("Average chord: {:.1} mm", design.average_chord_mm()); // This prints the average chord.
-    println!("MAC: {:.1} mm", design.mean_aerodynamic_chord_mm()); // This prints the mean aerodynamic chord.
-    println!("MAC leading edge position: {:.1} mm", design.mac_le_x_position_mm()); // This prints the MAC leading edge position.
+    println!("MAC spanwise position: {:.1} mm from centerline.", design.mac_y_position_mm()); // This prints the mean aerodynamic chord.
+    println!("MAC leading edge position: {:.1} mm aft of root leading edge.", design.mac_le_x_position_mm()); // This prints the MAC leading edge position.
     println!("Wing area: {:.1} mm²", design.wing_area_mm2()); // This prints wing area in square millimeters.
     println!("Wing area: {:.2} dm²", design.wing_area_dm2()); // This prints wing area in square decimeters.
     println!("Aspect ratio: {:.2}", design.aspect_ratio()); // This prints aspect ratio with 2 decimals.
     println!("Taper ratio: {:.2}", design.taper_ratio()); // This prints taper ratio with 2 decimals.
-    println!("Recommended CG range: {:.1} mm to {:.1} mm from root leading edge", design.recommended_cg_min_mm(), design.recommended_cg_max_mm()); // This prints the recommended CG range.
+    println!("Preliminary geometric CG estimate: {:.1} mm to {:.1} mm from root leading edge", design.recommended_cg_min_mm(), design.recommended_cg_max_mm()); // This prints the recommended CG range.
     println!("Elevon depth: {:.1} mm", design.elevon_depth_mm); // This prints elevon depth.
     println!("Elevon area: {:.1} mm²", design.elevon_area_mm2()); // This prints total elevon area.
     println!("Elevon area percent: {:.1}%", design.elevon_area_percent()); // This prints elevon area as percentage of wing area.

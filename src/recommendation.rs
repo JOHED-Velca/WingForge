@@ -56,12 +56,12 @@ pub fn print_recommendation(
     );
 
     println!(
-        "First-flight CG: begin near {:.1} mm from the root leading edge.",
+        "Preliminary CG estimate: begin near {:.1} mm from the root leading edge.",
         cg_min
     );
 
     println!(
-        "Move the CG rearward only in small steps after successful test flights."
+        "Confirm the CG with a flying-wing stability method before the first flight."
     );
 }
 

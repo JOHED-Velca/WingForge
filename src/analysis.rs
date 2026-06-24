@@ -70,7 +70,7 @@ fn analyze_cg(design: &FlyingWingDesign){
     let cg_max = design.recommended_cg_max_mm();
     let cg_range = cg_max - cg_min;
 
-    println!("CG range: {:.1} mm to {:.1} mm from root leading edge.", cg_min, cg_max);
+    println!("Preliminary geometric CG estimate: {:.1} mm to {:.1} mm from root leading edge.", cg_min, cg_max);
     println!("CG window size: {:.1} mm", cg_range);
 
     if cg_range < 8.0 {
